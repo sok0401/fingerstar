@@ -44,6 +44,36 @@
         .orbit { position: absolute; top: 50%; left: 50%; border: 1px solid rgba(162, 155, 254, 0.2); border-radius: 50%; border-right-color: transparent !important; animation: rotate var(--speed) linear infinite; }
         @keyframes rotate { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
 
+        /* 新增：初始進入的浮現動畫 */
+@keyframes entranceFade {
+    from { 
+        opacity: 0; 
+        transform: translateY(30px); /* 從下方 30px 開始 */
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); /* 回到原始位置 */
+    }
+}
+
+/* 修改：為主容器加上初始動畫設定 */
+.container { 
+    /* ... 保持原本樣式 ... */
+    max-width: 800px; 
+    margin: 60px auto; 
+    padding: 40px; 
+    background: rgba(10, 10, 10, 0.7); 
+    backdrop-filter: blur(15px); 
+    border-radius: 20px; 
+    border: 1px solid rgba(162, 155, 254, 0.1); 
+    position: relative; 
+    z-index: 10; 
+
+    /* 新增這兩行：套用動畫 */
+    opacity: 0; /* 初始狀態先隱藏 */
+    animation: entranceFade 1.5s ease-out forwards; /* 1.5 秒完成浮現 */
+}
+
         /* 故事容器 */
         .container { 
             max-width: 800px; 
@@ -56,6 +86,28 @@
             position: relative; 
             z-index: 10; 
         }
+        /* 修改：主容器加入過渡效果 */
+
+.container.ending-mode {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%); /* 這裡會自動覆蓋掉 entranceFade 的位移 */
+    margin: 0;
+    opacity: 1; /* 確保進入結局時是顯現的 */
+    animation: none; /* 進入結局時不重複播放初始動畫 */
+}
+
+/* 新增：結局標題淡入效果 */
+.end-title-text {
+    font-weight: 100;
+    letter-spacing: 15px;
+    margin-bottom: 40px;
+    color: #fffde7;
+    text-shadow: 0 0 20px rgba(162, 155, 254, 0.5);
+    opacity: 0;
+    animation: fadeIn 2s forwards; /* 標題平滑淡入 */
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
         .location-tag { color: #a29bfe; font-size: 0.9rem; letter-spacing: 2px; margin-bottom: 10px; display: block; text-align: center; height: 1.2rem; }
         h1 { font-weight: 100; letter-spacing: 5px; margin-bottom: 20px; text-align: center; min-height: 1.2em; }
@@ -126,7 +178,7 @@
     <div class="orbit-container" id="orbit-field"></div>
     <a href="index.html" class="back-home">← 返回星盤</a>
 
-    <div class="container">
+    <div class="container" id="main-container">
         <div id="story-view">
             <span class="location-tag" id="loc-display"></span>
             <h1 id="title-display"></h1>
@@ -140,15 +192,14 @@
         </div>
 
         <div id="ending-screen" style="display: none; text-align: center;">
-            <h1 id="end-title"></h1>
-            <div class="story-img">
-                <img id="end-img" src="" alt="">
-            </div>
-            <p id="end-type" style="color: #a29bfe; font-size: 1.2rem;"></p>
-            <div class="event-desc" id="end-desc"></div>
-            <button class="option-btn" onclick="location.reload()" style="text-align: center; margin-top: 30px;">重新開啟命盤</button>
-        </div>
+        <h1 id="end-title" class="end-title-text"></h1>
+        <div class="event-desc" id="end-desc" style="min-height: 150px;"></div>
+        <button class="option-btn" id="restart-btn" onclick="location.reload()" 
+                style="text-align: center; margin-top: 50px; display: none; opacity: 0;">
+            重新開啟命盤
+        </button>
     </div>
+</div>
 
     <script>
         // 初始化背景動態
@@ -206,25 +257,26 @@
             { id: 27, loc: "身宮", star: "七殺", title: "第二十七章", img: "4.PNG", desc: "破君一路護送你到一座宮殿後告別，只要從這座宮殿出去，似乎就能回到現實，便迫不及待地奔向大門，但卻在要碰觸到門的一瞬間被反彈。從門中幻化出了一個手拿長槍的人，她面露兇色「我乃是七殺大將軍，凡過門者，都得經過我才行。」", options: [" 與她決鬥", "反正先求饒應該沒錯", "拿出之前巨門落下的鑰匙"], target: [28, 28, 28] },
             { id: 28, loc: "身宮", star: "七殺", title: "第二十八章", img: "4.PNG", desc: "得到七殺的允許後，大門終於開了。這時，門旁的雕像忽然動了起來，紛紛向你攻擊，七殺為你擋下了攻擊，卻受了重傷。", options: [" 趁機補一刀 ", "轉頭救她", "直接跨過她衝向大門"], target: [29, 29, 29] },
             { id: 29, loc: "夾宮", star: "無", title: "第二十九章", img: "4.PNG", desc: "瞬間光芒閃爍，你看到了現實世界的幻象，一切都很好，但就是好過頭了。可是你只要留下來，這裡也可能是對你來說最好的現實也說不定。", options: ["要不留下來吧...", "大力擊碎幻象", " 迷惘中"], target: [30, 30, 30] },
-            { id: 30, loc: "最終迴廊", star: "無", title: "第三十章", img: "30.PNG", desc: "出現三道門：紫門、紅門、灰門。", options: ["紫門", "紅門", "灰門"], target: [4, 4, 4] }
+            { id: 30, loc: "最終迴廊", star: "無", title: "第三十章", img: "30.PNG", desc: "出現三道門：紫門、紅門、灰門。", options: ["紫門", "紅門", "灰門"], target: [999, 999, 999] }
         
         ];
 
         const endings = {
-            101: { name: "站著不如躺著吧", img: "https://via.placeholder.com/1920x1080/333/ffffff?text=Stone+Tablet", desc: "意志消磨，身體化為石碑，成為後人的路標。" },
-            102: { name: "站著不如躺著吧", img: "https://via.placeholder.com/1920x1080/333/ffffff?text=Stone+Tablet", desc: "意志消磨，身體化為石碑，成為後人的路標。" },
-            104: { name: "站著不如躺著吧", img: "https://via.placeholder.com/1920x1080/333/ffffff?text=Stone+Tablet", desc: "意志消磨，身體化為石碑，成為後人的路標。" },
-            105: { name: "站著不如躺著吧", img: "https://via.placeholder.com/1920x1080/333/ffffff?text=Stone+Tablet", desc: "意志消磨，身體化為石碑，成為後人的路標。" },
-            106: { name: "站著不如躺著吧", img: "https://via.placeholder.com/1920x1080/333/ffffff?text=Stone+Tablet", desc: "意志消磨，身體化為石碑，成為後人的路標。" },
-            107: { name: "站著不如躺著吧", img: "https://via.placeholder.com/1920x1080/333/ffffff?text=Stone+Tablet", desc: "意志消磨，身體化為石碑，成為後人的路標。" },
-            108: { name: "站著不如躺著吧", img: "https://via.placeholder.com/1920x1080/333/ffffff?text=Stone+Tablet", desc: "意志消磨，身體化為石碑，成為後人的路標。" },
-            109: { name: "站著不如躺著吧", img: "https://via.placeholder.com/1920x1080/333/ffffff?text=Stone+Tablet", desc: "意志消磨，身體化為石碑，成為後人的路標。" },
-            110: { name: "站著不如躺著吧", img: "https://via.placeholder.com/1920x1080/333/ffffff?text=Stone+Tablet", desc: "意志消磨，身體化為石碑，成為後人的路標。" },
-            111: { name: "站著不如躺著吧", img: "https://via.placeholder.com/1920x1080/333/ffffff?text=Stone+Tablet", desc: "意志消磨，身體化為石碑，成為後人的路標。" },
-            112: { name: "站著不如躺著吧", img: "https://via.placeholder.com/1920x1080/333/ffffff?text=Stone+Tablet", desc: "意志消磨，身體化為石碑，成為後人的路標。" },
-            113: { name: "站著不如躺著吧", img: "https://via.placeholder.com/1920x1080/333/ffffff?text=Stone+Tablet", desc: "意志消磨，身體化為石碑，成為後人的路標。" },
-            114: { name: "站著不如躺著吧", img: "https://via.placeholder.com/1920x1080/333/ffffff?text=Stone+Tablet", desc: "意志消磨，身體化為石碑，成為後人的路標。" },
-            115: { name: "站著不如躺著吧", img: "https://via.placeholder.com/1920x1080/333/ffffff?text=Stone+Tablet", desc: "意志消磨，身體化為石碑，成為後人的路標。" },
+            101: { name: "站著不如躺著吧", desc: "出不去就是出不去，好好睡一覺比較實在" },
+            102: { name: "你好像很隨便ㄟ...", desc: "...你真的有認真玩嗎?" },
+            103: { name: "天倫之樂，為何不沉淪", desc: "過上了好的生活...嗎?" },
+            104: { name: "NPC吧^^", desc: "平凡的過也很好喔" },
+            105: { name: "做夢也好", desc: "夢裡什麼都有，好夢好夢" },
+            106: { name: "辯論美食家", desc: "非黑即白，為探究而探究也是好的。" },
+            107: { name: "破碎之靈", desc: "心靈破碎，傷痕累累" },
+            108: { name: "躲貓貓上癮", desc: "沒想找過出去的路吧" },
+            109: { name: "決鬥吧！就你和我", desc: "感覺是遊戲裡的BOSS阿..." },
+            110: { name: "難不成我洞悉了宇宙", desc: "貓貓宇宙圖.JPG" },
+            111: { name: "混沌祭典", desc: "無差別攻擊哈哈哈哈" },
+            112: { name: "平凡的幸福", desc: "平穩的過真是再好不過了" },
+            113: { name: "財富自由（恭喜你發大財！）", desc: "掉進錢坑吧你!!!" },
+            114: { name: "命運之輪", desc: "別猶豫，相信你一直以來的自己就好了喔。" },
+            115: { name: "烈焰給予你的", desc: "溫暖的小太陽，希望你也能找到屬於你的陽光。" },
         
         };
 
@@ -239,55 +291,146 @@
             document.getElementById('bg-img-el').src = q.img;
             document.getElementById('desc-display').innerText = q.desc;
 
-            const container = document.getElementById('options-container');
-            container.innerHTML = '';
-            q.options.forEach((opt, i) => {
-                const btn = document.createElement('button');
-                btn.className = 'option-btn';
-                btn.innerText = opt;
-                btn.onclick = () => handleOptionClick(q.target[i]);
-                container.appendChild(btn);
-            });
+           const container = document.getElementById('options-container');
+    container.innerHTML = '';
+    q.options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerText = opt;
+        // 傳入題號 q.id 與玩家點選的索引 i
+        btn.onclick = () => handleOptionClick(q.target[i], q.id, i);
+        container.appendChild(btn);
+    });
+}
+
+        // 1. 新增紀錄玩家選擇的物件
+        let userChoices = {};
+
+function handleOptionClick(nextId, questionId, optionIndex) {
+    // 紀錄玩家在這一題選了第幾個選項 (1, 2, 或 3)
+    userChoices[questionId] = optionIndex + 1; 
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // 2. 判定結局邏輯
+    const triggeredEnding = checkEndings(nextId);
+    
+    if (triggeredEnding) {
+        showEnding(triggeredEnding);
+    } else {
+        // 繼續下一題的過渡動畫...
+        const imgEl = document.getElementById('chapter-img');
+        imgEl.classList.add('fade-out');
+        setTimeout(() => {
+            updateContent(nextId);
+            setTimeout(() => imgEl.classList.remove('fade-out'), 50);
+        }, 500);
+    }
+}
+
+// 3. 結局條件判定函式
+function checkEndings(nextId) {
+    // A. 即時觸發類 (例如 Q1 選 1 或 3 直接給 101 結局)
+    if (nextId >= 100) return nextId;
+
+    // B. 處理最後一題 (ID 999) 的最終結算邏輯
+    if (nextId === 999) 
+    
+    // 結局 3: Q6(選1) + Q21(選1)
+    if (userChoices[6] === 1 && userChoices[21] === 1) return 103;
+
+    // 結局 4: Q10(選項1) + Q30(選灰門/即選項3)
+        if (userChoices[10] === 1 && userChoices[30] === 3) return 104;
+
+    // 結局 5: Q21(選1) + Q22(選1)
+    if (userChoices[21] === 1 && userChoices[22] === 1) return 105;
+
+    // 結局 6: Q13(選1) + Q14(選2)
+    if (userChoices[13] === 1 && userChoices[14] === 2) return 106;
+
+    // 結局 7: Q25(選3) + Q28(選2)
+    if (userChoices[25] === 3 && userChoices[28] === 2) return 107;
+
+    // 結局 8: Q23(選3) + Q25(選3)
+    if (userChoices[23] === 3 && userChoices[25] === 3) return 108;
+
+    // 結局 9: Q11(選1) + Q27(選1)
+    if (userChoices[11] === 1 && userChoices[27] === 1) return 109;
+
+    // 結局 10: Q10(選1) + Q15(選3)
+    if (userChoices[10] === 1 && userChoices[15] === 3) return 110;
+
+    // 結局 11: Q18(選3) + Q28(選1)
+    if (userChoices[18] === 3 && userChoices[28] === 1) return 111;
+
+    // 結局 12: Q7(1) + Q29(2) + Q30(灰門/選項3)
+        if (userChoices[7] === 1 && userChoices[29] === 2 && userChoices[30] === 3) return 112;
+
+    // 結局 13: Q9(1) + Q12(1) + Q20(2) 財富自由
+    if (userChoices[9] === 1 && userChoices[12] === 1 && userChoices[20] === 2) return 113;
+    
+    // 結局 14: Q2(選2) + Q8(選1) + Q15(選2) + Q24(選1)
+    if (userChoices[2] === 2 && userChoices[8] === 1 && userChoices[15] === 2 && userChoices[24] === 1) return 106;
+    
+    // 結局 15: Q23(選2) + Q24(選1)
+    if (userChoices[23] === 2 && userChoices[24] === 1) return 115;
+
+    // C. 最終題 (Q35) 結算類
+    if (nextId === "END_GAME") {
+        // 結局 2: 全程隨便 (假設測驗到最後都沒有觸發以上條件，且選項 3 佔大多數)
+        let option3Count = Object.values(userChoices).filter(val => val === 3).length;
+        if (option3Count > 20) return 102; 
+
+        // 預設結局
+        return 112; 
+    }
+
+    return null; // 尚未觸發結局
+}
+
+       /* 新增：打字機動畫函數 */
+function typeEffect(element, text, speed = 100) {
+    let i = 0;
+    element.innerText = "";
+    const timer = setInterval(() => {
+        if (i < text.length) {
+            element.append(text.charAt(i));
+            i++;
+        } else {
+            clearInterval(timer);
+            // 文字打完後，讓按鈕緩緩浮現
+            const btn = document.getElementById('restart-btn');
+            btn.style.display = "inline-block";
+            setTimeout(() => { 
+                btn.style.opacity = "1"; 
+                btn.style.transition = "opacity 1s"; 
+            }, 100);
         }
+    }, speed);
+}
 
-        // --- 修改重點 2: JavaScript 轉場流程控制 ---
-        function handleOptionClick(nextId) {
-            window.scrollTo({ top: 0, behavior: 'smooth' }); // 平滑捲動回頂部
+/* 修改：結局顯示邏輯 */
+function showEnding(id) {
+    const end = endings[id];
+    document.getElementById('story-view').style.display = 'none';
+    
+    // 1. 啟動容器置中模式
+    const container = document.getElementById('main-container');
+    container.classList.add('ending-mode');
+    
+    // 2. 切換背景圖片
+    document.getElementById('bg-img-el').src = end.img;
 
-            if (nextId >= 100) {
-                // 如果是結局，直接跳轉，不需要淡入淡出插圖
-                showEnding(nextId);
-            } else {
-                const imgEl = document.getElementById('chapter-img');
-                
-                // 開始過渡流程
-                // 1. Fade Out: 加上 class，讓舊圖片花 0.5 秒變透明
-                imgEl.classList.add('fade-out');
-
-                // 2. 切換內容: 等待 0.5 秒（CSS 過渡結束時）
-                setTimeout(() => {
-                    // 在幕後（圖片透明時）更換圖片 src 與文字
-                    updateContent(nextId);
-
-                    // 3. Fade In: 移除 class，讓新圖片花 0.5 秒緩慢顯現
-                    // 注意：這裡多加了一個非常微小的延遲（50ms），確保瀏覽器已完成 src 的切換
-                    setTimeout(() => {
-                        imgEl.classList.remove('fade-out');
-                    }, 50);
-
-                }, 500); // 這裡的時間（毫秒）必須大於或等於 CSS 中的 transition 時間 (0.5s = 500ms)
-            }
-        }
-
-        function showEnding(id) {
-            const end = endings[id];
-            document.getElementById('story-view').style.display = 'none';
-            const screen = document.getElementById('ending-screen');
-            screen.style.display = 'block';
-            document.getElementById('end-title').innerText = `結局：${end.name}`;
-            document.getElementById('end-img').src = end.img;
-            document.getElementById('end-desc').innerText = end.desc;
-        }
+    const screen = document.getElementById('ending-screen');
+    screen.style.display = 'block';
+    
+    // 3. 填入標題並啟動逐字動畫
+    document.getElementById('end-title').innerText = `結局：${end.name}`;
+    setTimeout(() => {
+        // 每 150 毫秒跳出一個字
+        typeEffect(document.getElementById('end-desc'), end.desc, 50);
+    }, 1000); 
+}
 
         // 初始載入第一章時不需要轉場動畫
         window.onload = () => { initBg(); updateContent(1); };
