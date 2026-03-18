@@ -14,7 +14,7 @@
             height: 300vh;
         }
 
-        /* 背景粒子流動 */
+       
         .stars-container {
             position: fixed;
             top: 0; left: 0;
@@ -39,7 +39,7 @@
             100% { transform: translateX(110vw) scale(1.2); opacity: 0; }
         }
 
-        /* 滑鼠粒子畫布 */
+        
         #mouse-canvas {
             position: fixed;
             top: 0; left: 0;
@@ -72,7 +72,7 @@
             text-shadow: 0 0 10px rgba(162, 155, 254, 0.2);
         }
 
-        /* 軌道樣式 */
+        
         .orbit-container {
             position: absolute;
             width: 100%; height: 100%;
@@ -94,7 +94,7 @@
             to { transform: rotate(var(--direction)); }
         }
 
-        /* 十二宮位圓盤 (純光環版) */
+        
         .zodiac-wheel {
             width: 450px; height: 450px;
             border-radius: 50%;
@@ -109,7 +109,7 @@
             box-shadow: 0 0 50px rgba(162, 155, 254, 0.4), inset 0 0 25px rgba(162, 155, 254, 0.2);
         }
 
-        /* 淺黃色發光選單 */
+        
         .floating-nav {
             position: absolute;
             width: 100%; height: 100%;
@@ -165,7 +165,7 @@
     <div class="scroll-msg">向下捲動 喚醒星盤</div>
 
     <script>
-        // --- 背景星空與軌道生成 (維持不變) ---
+        
         const starsContainer = document.getElementById('stars');
         for (let i = 0; i < 120; i++) {
             const star = document.createElement('div');
@@ -190,7 +190,7 @@
             orbitField.appendChild(ob);
         }
 
-        // --- 修改重點：具備「引力系統」的粒子邏輯 ---
+       
         const canvas = document.getElementById('mouse-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -213,14 +213,14 @@
                 this.life = 1;
             }
             update() {
-                // 引力計算：計算指向螢幕中心的向量
+                
                 const centerX = window.innerWidth / 2;
                 const centerY = window.innerHeight / 2;
                 const dx = centerX - this.x;
                 const dy = centerY - this.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 
-                // 只有在圓盤浮現後 (scrollPos > 50) 才增加引力感
+                
                 const pullStrength = 0.0005; 
                 if (window.scrollY > 50) {
                     this.speedX += dx * pullStrength;
@@ -261,7 +261,7 @@
         }
         animateParticles();
 
-        // 捲動監聽 (喚醒星盤)
+        
         window.addEventListener('scroll', () => {
             const stage = document.getElementById('stage');
             const wheel = document.getElementById('wheel');

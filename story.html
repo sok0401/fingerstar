@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>星語劇場</title>
     <style>
-        /* 基礎樣式與首頁背景 */
+        
         body { 
             margin: 0; 
             background: radial-gradient(ellipse at bottom, #1B2735 0%, #090a1f 100%); 
@@ -16,14 +16,14 @@
             min-height: 100vh; 
         }
         
-/* --- 修改重點 1: 模糊背景圖片層 --- */
+
         .bg-blur-container {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 1; /* 位於最底層 */
+            z-index: 1; 
             overflow: hidden;
             transition: opacity 0.5s ease-in-out;
         }
@@ -31,34 +31,34 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            /* 模糊、降低亮度並設定初始透明度 */
+            
             filter: blur(30px) brightness(0.5); 
             opacity: 0.9;
             transition: opacity 0.5s ease-in-out;
         }
 
-        /* 背景粒子與軌道動態 */
+        
         .stars-container, .orbit-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 3; }
         .star { position: absolute; background: white; border-radius: 50%; opacity: 0; animation: flowing-right var(--duration) linear infinite; }
         @keyframes flowing-right { 0% { transform: translateX(0); opacity: 0; } 10% { opacity: 0.5; } 100% { transform: translateX(110vw); opacity: 0; } }
         .orbit { position: absolute; top: 50%; left: 50%; border: 1px solid rgba(162, 155, 254, 0.2); border-radius: 50%; border-right-color: transparent !important; animation: rotate var(--speed) linear infinite; }
         @keyframes rotate { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
 
-        /* 新增：初始進入的浮現動畫 */
+       
 @keyframes entranceFade {
     from { 
         opacity: 0; 
-        transform: translateY(30px); /* 從下方 30px 開始 */
+        transform: translateY(30px); 
     }
     to { 
         opacity: 1; 
-        transform: translateY(0); /* 回到原始位置 */
+        transform: translateY(0); 
     }
 }
 
-/* 修改：為主容器加上初始動畫設定 */
+
 .container { 
-    /* ... 保持原本樣式 ... */
+    
     max-width: 800px; 
     margin: 60px auto; 
     padding: 40px; 
@@ -69,12 +69,12 @@
     position: relative; 
     z-index: 10; 
 
-    /* 新增這兩行：套用動畫 */
-    opacity: 0; /* 初始狀態先隱藏 */
-    animation: entranceFade 1.5s ease-out forwards; /* 1.5 秒完成浮現 */
+    
+    opacity: 0; 
+    animation: entranceFade 1.5s ease-out forwards; 
 }
 
-        /* 故事容器 */
+        
         .container { 
             max-width: 800px; 
             margin: 60px auto; 
@@ -86,18 +86,18 @@
             position: relative; 
             z-index: 10; 
         }
-        /* 修改：主容器加入過渡效果 */
+        
 
 .container.ending-mode {
     position: fixed;
     top: 50%; left: 50%;
-    transform: translate(-50%, -50%); /* 這裡會自動覆蓋掉 entranceFade 的位移 */
+    transform: translate(-50%, -50%); 
     margin: 0;
-    opacity: 1; /* 確保進入結局時是顯現的 */
-    animation: none; /* 進入結局時不重複播放初始動畫 */
+    opacity: 1; 
+    animation: none; 
 }
 
-/* 新增：結局標題淡入效果 */
+
 .end-title-text {
     font-weight: 100;
     letter-spacing: 15px;
@@ -105,17 +105,17 @@
     color: #fffde7;
     text-shadow: 0 0 20px rgba(162, 155, 254, 0.5);
     opacity: 0;
-    animation: fadeIn 2s forwards; /* 標題平滑淡入 */
+    animation: fadeIn 2s forwards; 
 }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
         .location-tag { color: #a29bfe; font-size: 0.9rem; letter-spacing: 2px; margin-bottom: 10px; display: block; text-align: center; height: 1.2rem; }
         h1 { font-weight: 100; letter-spacing: 5px; margin-bottom: 20px; text-align: center; min-height: 1.2em; }
 
-        /* 圖片放置區塊與 16:9 優化 */
+        
         .story-img { 
             width: 100%; 
-            aspect-ratio: 16 / 9; /* 針對 1920*1080 圖片進行比例優化 */
+            aspect-ratio: 16 / 9; 
             height: auto; 
             background: #1a1a1a; 
             margin: 20px 0; 
@@ -127,16 +127,16 @@
             border: 1px solid rgba(162, 155, 254, 0.2);
         }
 
-        /* --- 修改重點 1: CSS 淡入淡出基礎設定 --- */
+       
         .story-img img { 
             width: 100%; 
             height: 100%; 
             object-fit: contain; 
-            opacity: 1; /* 初始全亮 */
-            transition: opacity 0.5s ease-in-out; /* 設定 0.5 秒透明度過渡 */
+            opacity: 1; 
+            transition: opacity 0.5s ease-in-out; 
         }
 
-        /* 當圖片帶有此 class 時會變透明 */
+        
         .story-img img.fade-out { 
             opacity: 0 !important; 
         }
@@ -202,7 +202,7 @@
 </div>
 
     <script>
-        // 初始化背景動態
+       
         function initBg() {
             const sc = document.getElementById('stars');
             for(let i=0; i<80; i++){
@@ -226,7 +226,7 @@
             }
         }
 
-        // 故事資料（這裡使用網路佔位圖示意比例）
+        
         const questions = [
             { id: 1, loc: "命宮", star: "無", title: "第一章", img: "1.PNG", desc: "你掉到一個未知的黑暗地方，四周迷霧繚繞，唯有前面的一束光閃爍著，似乎是唯一一個出口...", options: ["憑什麼要我出去", "順著光走", "不出去，我就躺"], target: [101, 2, 101] },
             { id: 2, loc: "命宮", star: "紫微", title: "第二章", img: "2-3.PNG", desc: "伴隨著你穿越的那刻閃爍著，剛睜開眼，便見一位穿著尊貴的女性憑空出現，聲音凜冽卻帶著威嚴，她說道「我是紫微，乃是掌管北斗主星之主。這裡是十二宮位中之一宮 – 命宮」，問道「凡人啊，你可知，這次是為了什麼而來？」", options: ["沒有特別想要的", "只求能出去", "（我怎麼知道）"], target: [3, 3, 3] },
@@ -280,7 +280,7 @@
         
         };
 
-        // 僅更換內容的純函數
+        
         function updateContent(qIdx) {
             const q = questions.find(item => item.id === qIdx);
             if(!q) return;
@@ -297,28 +297,28 @@
         const btn = document.createElement('button');
         btn.className = 'option-btn';
         btn.innerText = opt;
-        // 傳入題號 q.id 與玩家點選的索引 i
+        
         btn.onclick = () => handleOptionClick(q.target[i], q.id, i);
         container.appendChild(btn);
     });
 }
 
-        // 1. 新增紀錄玩家選擇的物件
+        
         let userChoices = {};
 
 function handleOptionClick(nextId, questionId, optionIndex) {
-    // 紀錄玩家在這一題選了第幾個選項 (1, 2, 或 3)
+    
     userChoices[questionId] = optionIndex + 1; 
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    // 2. 判定結局邏輯
+    
     const triggeredEnding = checkEndings(nextId);
     
     if (triggeredEnding) {
         showEnding(triggeredEnding);
     } else {
-        // 繼續下一題的過渡動畫...
+       
         const imgEl = document.getElementById('chapter-img');
         imgEl.classList.add('fade-out');
         setTimeout(() => {
@@ -328,18 +328,18 @@ function handleOptionClick(nextId, questionId, optionIndex) {
     }
 }
 
-// 3. 結局條件判定函式
+
 function checkEndings(nextId) {
-    // A. 即時觸發類 (例如 Q1 選 1 或 3 直接給 101 結局)
+    // A.
     if (nextId >= 100) return nextId;
 
-    // B. 處理最後一題 (ID 999) 的最終結算邏輯
+    // B. ID 999
     if (nextId === 999) 
     
     // 結局 3: Q6(選1) + Q21(選1)
     if (userChoices[6] === 1 && userChoices[21] === 1) return 103;
 
-    // 結局 4: Q10(選項1) + Q30(選灰門/即選項3)
+    // 結局 4: Q10(選項1) + Q30
         if (userChoices[10] === 1 && userChoices[30] === 3) return 104;
 
     // 結局 5: Q21(選1) + Q22(選1)
@@ -363,10 +363,10 @@ function checkEndings(nextId) {
     // 結局 11: Q18(選3) + Q28(選1)
     if (userChoices[18] === 3 && userChoices[28] === 1) return 111;
 
-    // 結局 12: Q7(1) + Q29(2) + Q30(灰門/選項3)
+    // 結局 12: Q7(1) + Q29(2) + Q30
         if (userChoices[7] === 1 && userChoices[29] === 2 && userChoices[30] === 3) return 112;
 
-    // 結局 13: Q9(1) + Q12(1) + Q20(2) 財富自由
+    // 結局 13: Q9(1) + Q12(1) + Q20(2) 
     if (userChoices[9] === 1 && userChoices[12] === 1 && userChoices[20] === 2) return 113;
     
     // 結局 14: Q2(選2) + Q8(選1) + Q15(選2) + Q24(選1)
@@ -375,9 +375,9 @@ function checkEndings(nextId) {
     // 結局 15: Q23(選2) + Q24(選1)
     if (userChoices[23] === 2 && userChoices[24] === 1) return 115;
 
-    // C. 最終題 (Q35) 結算類
+    // C. Q35
     if (nextId === "END_GAME") {
-        // 結局 2: 全程隨便 (假設測驗到最後都沒有觸發以上條件，且選項 3 佔大多數)
+        // 結局 2
         let option3Count = Object.values(userChoices).filter(val => val === 3).length;
         if (option3Count > 20) return 102; 
 
@@ -385,10 +385,10 @@ function checkEndings(nextId) {
         return 112; 
     }
 
-    return null; // 尚未觸發結局
+    return null;
 }
 
-       /* 新增：打字機動畫函數 */
+       
 function typeEffect(element, text, speed = 100) {
     let i = 0;
     element.innerText = "";
@@ -398,7 +398,7 @@ function typeEffect(element, text, speed = 100) {
             i++;
         } else {
             clearInterval(timer);
-            // 文字打完後，讓按鈕緩緩浮現
+            
             const btn = document.getElementById('restart-btn');
             btn.style.display = "inline-block";
             setTimeout(() => { 
@@ -409,30 +409,29 @@ function typeEffect(element, text, speed = 100) {
     }, speed);
 }
 
-/* 修改：結局顯示邏輯 */
+
 function showEnding(id) {
     const end = endings[id];
     document.getElementById('story-view').style.display = 'none';
     
-    // 1. 啟動容器置中模式
+    
     const container = document.getElementById('main-container');
     container.classList.add('ending-mode');
     
-    // 2. 切換背景圖片
     document.getElementById('bg-img-el').src = end.img;
 
     const screen = document.getElementById('ending-screen');
     screen.style.display = 'block';
     
-    // 3. 填入標題並啟動逐字動畫
+    
     document.getElementById('end-title').innerText = `結局：${end.name}`;
     setTimeout(() => {
-        // 每 150 毫秒跳出一個字
+      
         typeEffect(document.getElementById('end-desc'), end.desc, 50);
     }, 1000); 
 }
 
-        // 初始載入第一章時不需要轉場動畫
+        
         window.onload = () => { initBg(); updateContent(1); };
     </script>
 </body>
