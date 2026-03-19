@@ -408,10 +408,31 @@ function showResult() {
     document.getElementById('result-star').innerText = maxStar;
     document.getElementById('result-desc').innerText = starResults[maxStar] || "你的星曜正在編織中...";
 
-    // 3. 載入對應圖片 (路徑需與你的專案資料夾相符)
-    // 這裡假設你的圖片放在 chara 資料夾，且檔名為 "紫微.png"
-    const imagePath = `chara/${maxStar}.PNG`; 
-    document.getElementById('result-star-img').src = imagePath;
+    // 這裡就是讓你「直接貼上圖片路徑」的地方
+const starImages = {
+    "紫微": "紫微.PNG",  
+    "天機": "天機.PNG",
+    "太陽": "太陽.PNG",
+    "武曲": "武曲.PNG",
+    "天同": "天同.PNG",
+    "廉貞": "廉貞.PNG",
+    "天府": "天府.PNG",
+    "太陰": "太陰.PNG",
+    "貪狼": "貪狼.PNG",
+    "巨門": "巨門.PNG",
+    "天相": "天相.PNG",
+    "天梁": "天梁.PNG",
+    "七殺": "七殺.PNG",
+    "破軍": "破軍.PNG"
+};
+
+// 3. --- 修改這裡：直接從對照表抓取路徑 ---
+    const imagePath = starImages[maxStar]; 
+    if (imagePath) {
+        document.getElementById('result-star-img').src = imagePath;
+    }
+
+
 }
 
 window.onload = () => {
