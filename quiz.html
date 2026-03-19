@@ -106,6 +106,46 @@
         /* 結果顯示樣式 */
         .result-star-name { font-size: 3.5rem; color: #fffde7; letter-spacing: 15px; margin: 20px 0; font-weight: 100; text-shadow: 0 0 20px rgba(162, 155, 254, 0.8); }
         .result-desc { color: #aaa; line-height: 2.2; text-align: left; margin-top: 30px; font-size: 1.1rem; border-top: 1px solid rgba(162, 155, 254, 0.2); padding-top: 25px; }
+    
+    /* 結局容器：改為 Flex 左右排列 */
+.result-container-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 40px; /* 文字與圖片的間距 */
+    text-align: left;
+}
+
+/* 左側文字區 */
+.result-text-content {
+    flex: 1.2;
+}
+
+/* 右側圖片區 */
+.result-image-content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+/* 結局插圖：加上霓虹光暈 */
+#result-star-img {
+    max-width: 100%;
+    max-height: 400px;
+    height: auto;
+    border-radius: 15px;
+    border: 1px solid rgba(162, 155, 254, 0.3);
+    box-shadow: 0 0 30px rgba(162, 155, 254, 0.4);
+    object-fit: contain;
+}
+
+/* 讓結果標題靠左 */
+.result-star-name {
+    text-align: left;
+    margin: 10px 0 20px 0;
+}
+    
+    
     </style>
 </head>
 <body>
@@ -125,12 +165,20 @@
             <div class="options-grid" id="options-container"></div>
         </div>
 
-        <div id="result-view" style="display: none; text-align: center;">
+        <div id="result-view" style="display: none; width: 100%;">
+    <div class="result-container-inner">
+        <div class="result-text-content">
             <p style="color: #a29bfe; letter-spacing: 5px; font-size: 0.9rem;">測驗結果：你的守護主星為</p>
             <h1 id="result-star" class="result-star-name"></h1>
             <div class="result-desc" id="result-desc"></div>
-            <button class="option-btn" onclick="location.reload()" style="text-align: center; margin-top: 50px; display: inline-block;">重啟星路</button>
+            <button class="option-btn" onclick="location.reload()" style="margin-top: 40px;">重啟星路</button>
         </div>
+
+        <div class="result-image-content">
+            <img id="result-star-img" src="" alt="星曜圖片">
+        </div>
+    </div>
+</div>
     </div>
 
     <script>
@@ -318,7 +366,7 @@ function updateQuiz() {
 }
 
 function handleOptionClick(scoreConfig) {
-    // 核心修正：將物件中的權重數值累加到 finalScores
+    
     for (const [star, weight] of Object.entries(scoreConfig)) {
         finalScores[star] = (finalScores[star] || 0) + weight;
     }
@@ -343,10 +391,9 @@ function showResult() {
     document.getElementById('quiz-view').style.display = 'none';
     document.getElementById('result-view').style.display = 'block';
 
+    // 1. 找出得分最高的星曜
     let maxStar = "";
     let maxScore = -1;
-    
-    // 遍歷所有有得分的星曜，找出最大值
     for (const [star, score] of Object.entries(finalScores)) {
         if (score > maxScore) {
             maxScore = score;
@@ -354,11 +401,17 @@ function showResult() {
         }
     }
 
-    
-    if (!maxStar) maxStar = "天梁";
+    // 防呆：預設紫微
+    if (!maxStar) maxStar = "紫微";
 
+    // 2. 填入文字結果
     document.getElementById('result-star').innerText = maxStar;
     document.getElementById('result-desc').innerText = starResults[maxStar] || "你的星曜正在編織中...";
+
+    // 3. 載入對應圖片 (路徑需與你的專案資料夾相符)
+    // 這裡假設你的圖片放在 chara 資料夾，且檔名為 "紫微.png"
+    const imagePath = `chara/${maxStar}.PNG`; 
+    document.getElementById('result-star-img').src = imagePath;
 }
 
 window.onload = () => {
