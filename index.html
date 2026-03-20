@@ -148,6 +148,11 @@
 </head>
 <body>
 
+    <audio id="bgm" loop>
+    <source src="soft.mp3" type="audio/mpeg">
+    </audio>
+    
+    
     <div class="stars-container" id="stars"></div>
     <canvas id="mouse-canvas"></canvas>
 
@@ -288,6 +293,32 @@
                 wheel.classList.remove('active');
             }
         });
+
+// 背景音樂控制邏輯
+const bgm = document.getElementById('bgm');
+
+// 1. 設定音量 (0.0 ~ 1.0)
+bgm.volume = 0.3; 
+
+// 2. 跨頁面接續播放邏輯
+window.addEventListener('load', () => {
+    // 從瀏覽器記憶中抓取上個頁面的播放進度
+    const savedTime = localStorage.getItem('bgmTime');
+    if (savedTime) {
+        bgm.currentTime = parseFloat(savedTime);
+    }
+
+    // 監聽第一次點擊，解決瀏覽器禁止自動播放的問題
+    document.addEventListener('click', () => {
+        bgm.play();
+    }, { once: true }); // 只觸發一次點擊即可
+});
+
+// 3. 在離開頁面瞬間，記住目前的播放進度
+window.addEventListener('beforeunload', () => {
+    localStorage.setItem('bgmTime', bgm.currentTime);
+});
+
     </script>
 </body>
 </html>
