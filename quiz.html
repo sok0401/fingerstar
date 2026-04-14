@@ -155,7 +155,36 @@
     text-align: left;
     margin: 10px 0 20px 0;
 }
+    /* 手機版修正 */
+@media (max-width: 768px) {
+    .container {
+        margin: 20px auto; 
+        padding: 20px;
+        width: 90%; /* 增加間距 */
+    }
     
+    /* 結局改為上下排列 */
+    .result-container-inner {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .result-text-content {
+        padding-right: 0;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    
+    .result-star-name {
+        font-size: 2.5rem;
+        text-align: center;
+        letter-spacing: 5px;
+    }
+    
+    #result-star-img {
+        max-height: 300px; /* 限制圖片高度避免過長 */
+    }
+}
     
     </style>
 </head>

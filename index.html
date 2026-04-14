@@ -179,6 +179,36 @@
             animation: bounce 2s infinite;
         }
         @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateY(0);} 40% {transform: translateY(-10px);} }
+        
+        /* 手機版修正 */
+@media (max-width: 768px) {
+    body { height: 250vh; } /* 稍微縮短總高度 */
+    
+    .main-circle-container {
+        width: 280px; /* 縮小圓圈 */
+        height: 280px;
+    }
+    
+    .title-image {
+        width: 320px !important; /* 縮小標題圖片，確保不超出螢幕 */
+    }
+    
+    .sub-text { font-size: 0.7rem; letter-spacing: 2px; }
+    
+    /* 讓選單項目的位置在手機上更集中 */
+    .nav-item {
+        width: 80px; 
+        height: 80px; 
+        font-size: 0.9rem;
+    }
+    
+    /* 調整捲動後的選單距離，防止點不到 */
+    .nav-item:nth-child(1) { top: 15%; left: 50%; }
+    .nav-item:nth-child(2) { top: 50%; left: 15%; }
+    .nav-item:nth-child(3) { top: 50%; left: 85%; }
+    .nav-item:nth-child(4) { top: 85%; left: 50%; }
+}
+
     </style>
 </head>
 <body>
