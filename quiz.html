@@ -26,14 +26,14 @@
         
         .container { 
             max-width: 800px; 
-            margin: 100px auto; 
+            margin: 60px auto; 
             padding: 40px; 
-            background: rgba(10, 10, 10, 0.8); 
+            background: rgba(10, 10, 10, 0.85); 
             backdrop-filter: blur(20px); 
             border-radius: 24px; 
-            border: 1px solid rgba(162, 155, 254, 0.15); 
+            border: 1px solid rgba(162, 155, 254, 0.2); 
             position: relative; 
-            z-index: 10; 
+            z-index: 1000; 
             
             opacity: 0;
             animation: entranceFade 1.2s ease-out forwards;
@@ -201,6 +201,84 @@
         border-color: #a29bfe;
         }
     
+        /* 題目圓圈（星靈） */
+    .spirit-node {
+    position: absolute;
+    /* 縮小尺寸，讓光點更精緻 */
+    width: 60px; 
+    height: 60px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 50;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    /* 關鍵：讓中心有淡色微光，不再是黑洞 */
+    background: radial-gradient(circle, var(--glow-color, rgba(255, 255, 255, 0.4)) 0%, rgba(255, 255, 255, 0) 70%); 
+    
+    /* 調整光暈亮度與範圍 */
+    box-shadow: 
+        0 0 25px var(--glow-color, rgba(162, 155, 254, 0.3)),
+        inset 0 0 10px rgba(255, 255, 255, 0.1);
+
+    /* 稍微降低模糊度，讓光點形體更具體一點 */
+    filter: blur(1px); 
+    border: none !important;
+}
+
+.spirit-node:hover {
+    transform: scale(1.15);
+    filter: blur(0px);
+    /* 懸停時增加亮度 */
+    background: radial-gradient(circle, var(--glow-color, rgba(255, 255, 255, 0.6)) 0%, rgba(255, 255, 255, 0) 80%);
+    box-shadow: 0 0 40px var(--glow-color, rgba(162, 155, 254, 0.6));
+}
+
+    /* 漂浮動畫 */
+    /* 軌道旋轉動畫：負責公轉 */
+@keyframes orbit-rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* 抵消旋轉動畫：負責讓光點內的內容（如果有文字）保持正向，並增加一點點自轉晃動感 */
+@keyframes counter-rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(-360deg); }
+}
+
+/* 調整 spirit-node 的基礎設定 */
+.spirit-node {
+    position: absolute;
+    /* 移除原本的 animation 設定，改由 JS 動態分配 */
+    width: 50px; 
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 50;
+    transition: box-shadow 0.6s ease, transform 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle, var(--glow-color, rgba(255, 255, 255, 0.4)) 0%, rgba(255, 255, 255, 0) 70%); 
+    box-shadow: 0 0 25px var(--glow-color, rgba(162, 155, 254, 0.3));
+    filter: blur(1px);
+}
+
+    /* 運算中動畫 */
+    .loader-orbit {
+    width: 60px;
+    height: 60px;
+    margin: 20px auto;
+    border: 3px solid rgba(162, 155, 254, 0.2);
+    border-top: 3px solid #fffde7;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
     </style>
 </head>
 <body>
@@ -212,6 +290,7 @@
     <div class="stars-container" id="stars"></div>
     <div class="orbit-container" id="orbit-field"></div>
     <a href="index.html" class="back-home">← 返回星盤</a>
+    <div id="stars-playground" style="position: fixed; top:0; left:0; width:100vw; height:100vh; z-index:5;"></div>
 
     <div class="container" id="main-container">
         <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
@@ -400,21 +479,78 @@ const starResults = {
 };
 
 // --- 3. 測驗控制邏輯 (修正後的關鍵部分) ---
-let currentIdx = 0;
-let finalScores = {}; 
+let completedCount = 0;
+let finalScores = {};
+let remainingQuestions = [...quizData]; // 複製一份題目
 
-function updateQuiz() {
-    const q = quizData[currentIdx];
-    if(!q) return;
-    // 新增：動態計算並顯示題號 (目前題號 / 總題數)
-document.getElementById('q-num-display').innerText = `Q${currentIdx + 1} / ${quizData.length}`;
+// 生成 12 個代表題目的星靈
+function initSpiritNodes() {
+    const playground = document.getElementById('stars-playground');
+    // 稍微調亮顏色，避免在背景中隱形
+    const colors = [
+        'rgba(162, 155, 254, 0.8)', 
+        'rgba(115, 198, 239, 0.8)', 
+        'rgba(255, 121, 198, 0.4)', 
+        'rgba(189, 147, 249, 0.5)', 
+        'rgba(249, 238, 203, 0.8)'
+    ];
 
-    const imgEl = document.getElementById('question-img');
-    imgEl.src = q.image;
+    for (let i = 0; i < 12; i++) {
+        // 1. 創建一個軌道容器 (與螢幕同寬高，中心對齊)
+        const orbitLayer = document.createElement('div');
+        orbitLayer.style.position = 'absolute';
+        orbitLayer.style.top = '0';
+        orbitLayer.style.left = '0';
+        orbitLayer.style.width = '100vw';
+        orbitLayer.style.height = '100vh';
+        orbitLayer.style.display = 'flex';
+        orbitLayer.style.alignItems = 'center';
+        orbitLayer.style.justifyContent = 'center';
+        orbitLayer.style.pointerEvents = 'none'; // 容器不阻擋點擊
+
+        // 隨機旋轉速度 (20s ~ 40s 繞一圈)
+        const duration = 20 + Math.random() * 30;
+        orbitLayer.style.animation = `orbit-rotate ${duration}s linear infinite`;
+        
+        // 2. 創建星靈光點
+        const node = document.createElement('div');
+        node.className = 'spirit-node';
+        node.style.pointerEvents = 'auto'; // 讓光點可以被點擊
+        
+        // 隨機半徑：讓光點分布在距離中心 150px 到 400px 的範圍內
+        const radius = 150 + Math.random() * 350;
+        // 隨機初始角度
+        const angle = Math.random() * 360;
+        
+        // 利用 CSS transform 將光點推到軌道上
+        node.style.transform = `rotate(${angle}deg) translateX(${radius}px)`;
+        
+        // 顏色設定
+        const color = colors[i % colors.length];
+        node.style.setProperty('--glow-color', color);
+        
+        // 點擊事件
+        node.onclick = () => openQuiz(node);
+
+        // 將光點放入軌道，軌道放入遊樂場
+        orbitLayer.appendChild(node);
+        playground.appendChild(orbitLayer);
+    }
+}
+function openQuiz(clickedNode) {
+    if (remainingQuestions.length === 0) return;
+
+    // 隨機抽取一題
+    const randomIndex = Math.floor(Math.random() * remainingQuestions.length);
+    const q = remainingQuestions[randomIndex];
+
+    // 更新內容至燈箱 (原本的 quiz-view)
+    document.getElementById('q-num-display').innerText = `已收集星語: ${completedCount + 1} / 12`;
+    document.getElementById('question-img').src = q.image;
     document.getElementById('question-display').innerText = q.title;
     
     // 進度條
-    const progress = ((currentIdx + 1) / quizData.length) * 100;
+    const progress = ((completedCount + 1) / 12) * 100;
     document.getElementById('progress').style.width = progress + '%';
 
     const container = document.getElementById('options-container');
@@ -423,33 +559,99 @@ document.getElementById('q-num-display').innerText = `Q${currentIdx + 1} / ${qui
         const btn = document.createElement('button');
         btn.className = 'option-btn';
         btn.innerText = opt.text;
-        
-        btn.onclick = () => handleOptionClick(opt.scores);
+        btn.onclick = () => {
+            handleOptionClick(opt.scores, clickedNode, randomIndex);
+        };
         container.appendChild(btn);
     });
+
+    // 顯示燈箱
+    document.getElementById('main-container').style.display = 'block';
 }
 
-function handleOptionClick(scoreConfig) {
-    
+function handleOptionClick(scoreConfig, node, qIndex) {
+    // 累加分數
     for (const [star, weight] of Object.entries(scoreConfig)) {
         finalScores[star] = (finalScores[star] || 0) + weight;
     }
 
-    currentIdx++;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // 隱藏燈箱
+    document.getElementById('main-container').style.display = 'none';
 
-    if (currentIdx >= quizData.length) {
-        showResult();
-    } else {
-        const imgEl = document.getElementById('question-img');
-        imgEl.classList.add('fade-out');
-        setTimeout(() => {
-            updateQuiz();
-            setTimeout(() => imgEl.classList.remove('fade-out'), 50);
-        }, 500);
+    // 圓圈消失動畫
+    node.style.transform = 'scale(0)';
+    node.style.opacity = '0';
+    setTimeout(() => node.remove(), 500);
+
+    // 移除已答題目並增加計數
+    remainingQuestions.splice(qIndex, 1);
+    completedCount++;
+
+    if (completedCount >= 12) {
+        showAnalyzing(); // 全部答完
     }
 }
 
+function showAnalyzing() {
+    const main = document.getElementById('main-container');
+    main.style.display = 'block';
+    const quizView = document.getElementById('quiz-view');
+    
+    // 顯示分析中動畫
+    quizView.innerHTML = `
+        <div style="text-align:center; padding: 40px;">
+            <div class="loader-orbit"></div>
+            <p style="letter-spacing: 5px; color: #a29bfe; animation: pulse 1.5s infinite;">星軌觀測中...</p>
+        </div>
+    `;
+
+setTimeout(() => {
+        showResult(); document.getElementById('quiz-view').style.display = 'none';
+    document.getElementById('result-view').style.display = 'block';
+
+    // 1. 找出得分最高的星曜
+    let maxStar = "";
+    let maxScore = -1;
+    for (const [star, score] of Object.entries(finalScores)) {
+        if (score > maxScore) {
+            maxScore = score;
+            maxStar = star;
+        }
+    }
+
+    // 防呆：預設紫微
+    if (!maxStar) maxStar = "紫微";
+
+    // 2. 填入文字結果
+    document.getElementById('result-star').innerText = maxStar;
+    document.getElementById('result-desc').innerText = starResults[maxStar] || "你的星曜正在尋找中...";
+
+    // 這裡就是讓你「直接貼上圖片路徑」的地方
+const starImages = {
+    "紫微": "紫微.PNG",  
+    "天機": "天機.PNG",
+    "太陽": "太陽.PNG",
+    "武曲": "武曲.PNG",
+    "天同": "天同.PNG",
+    "廉貞": "廉貞.PNG",
+    "天府": "天府.PNG",
+    "太陰": "太陰.PNG",
+    "貪狼": "貪狼.PNG",
+    "巨門": "巨門.PNG",
+    "天相": "天相.PNG",
+    "天梁": "天梁.PNG",
+    "七殺": "七殺.PNG",
+    "破軍": "破軍.PNG"
+};
+
+// 3. --- 修改這裡：直接從對照表抓取路徑 ---
+    const imagePath = starImages[maxStar]; 
+    if (imagePath) {
+        document.getElementById('result-star-img').src = imagePath;
+    }
+
+    }, 2500);
+}
 
 function showResult() {
     document.getElementById('quiz-view').style.display = 'none';
@@ -470,7 +672,7 @@ function showResult() {
 
     // 2. 填入文字結果
     document.getElementById('result-star').innerText = maxStar;
-    document.getElementById('result-desc').innerText = starResults[maxStar] || "你的星曜正在編織中...";
+    document.getElementById('result-desc').innerText = starResults[maxStar] || "你的星曜正在尋找中...";
 
     // 這裡就是讓你「直接貼上圖片路徑」的地方
 const starImages = {
@@ -499,9 +701,10 @@ const starImages = {
 
 }
 
+// 修改原本的 window.onload
 window.onload = () => {
     initBg();
-    updateQuiz();
+    initSpiritNodes(); 
 };
 
 // 背景音樂控制邏輯

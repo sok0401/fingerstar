@@ -152,8 +152,11 @@
         .back-home { position: fixed; left: 40px; top: 40px; color: #a29bfe; text-decoration: none; font-size: 1.1rem; z-index: 200; }
 
         /* 手機版修正 */
-@media (max-width: 768px) {
-    body { overflow-x: auto; -webkit-overflow-scrolling: touch; } /* 允許手機觸控滑動 */
+    @media (max-width: 768px) {
+    body { 
+        overflow: hidden; 
+        touch-action: none; /* 防止瀏覽器預設的下拉重新整理等手勢 */
+    }
     
     .char-card.active {
         width: 90vw; /* 寬度改為螢幕的 90% */
@@ -261,7 +264,29 @@ const characters = [
             targetScroll += e.deltaY * 1.5;
             const maxScroll = wrapper.scrollWidth - window.innerWidth;
             targetScroll = Math.max(0, Math.min(targetScroll, maxScroll));
-        }, { passive: false });
+            
+            // 新增：觸控滑動支援
+            let touchStartX = 0;
+            let lastTargetScroll = 0;
+
+            window.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].pageX;
+            lastTargetScroll = targetScroll;
+            }, { passive: true });
+
+            window.addEventListener('touchmove', (e) => {
+            // 計算手指移動的距離
+            const touchCurrentX = e.touches[0].pageX;
+            const touchDeltaX = touchStartX - touchCurrentX;
+
+            // 將位移量加到目標滾動位置上 (乘上 1.5 倍可以調整滑動靈敏度)
+            targetScroll = lastTargetScroll + touchDeltaX * 1.5;
+
+            // 限制滾動範圍
+            const maxScroll = wrapper.scrollWidth - window.innerWidth;
+            targetScroll = Math.max(0, Math.min(targetScroll, maxScroll));
+            }, { passive: true });
+            }, { passive: false });
 
         function smoothScroll() {
             currentScroll += (targetScroll - currentScroll) * lerpFactor;
