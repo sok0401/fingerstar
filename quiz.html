@@ -24,25 +24,46 @@
         @keyframes rotate { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
 
         
-        .container { 
-            max-width: 800px; 
-            margin: 60px auto; 
-            padding: 40px; 
-            background: rgba(10, 10, 10, 0.85); 
-            backdrop-filter: blur(20px); 
-            border-radius: 24px; 
-            border: 1px solid rgba(162, 155, 254, 0.2); 
-            position: relative; 
-            z-index: 1000; 
-            
-            opacity: 0;
-            animation: entranceFade 1.2s ease-out forwards;
-        }
+        /* 1. 基礎樣式：預設隱藏且完全透明 */
+.container { 
+    display: none; 
+    opacity: 0; 
+    max-width: 650px; /* 使用你之前調整後的精緻寬度 */
+    width: 50%;
+    
+    /* 關鍵修改：改為 absolute 並設定頂部距離 */
+    position: absolute; 
+    top: 50px; /* 距離網頁頂部 50px，確保上方留白 */
+    left: 50%;
+    transform: translateX(-50%); /* 只需水平置中 */
+    
+    margin-bottom: 50px; /* 底部留白，避免貼齊邊緣 */
+    padding: 30px; 
+    background: rgba(10, 10, 10, 0.85); 
+    backdrop-filter: blur(20px); 
+    border-radius: 24px; 
+    border: 1px solid rgba(162, 155, 254, 0.2); 
+    z-index: 1000; 
 
-        @keyframes entranceFade {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+}
+
+/* 2. 動畫觸發樣式：當 JS 加上 .show 時才執行動畫 */
+.container.show {
+    display: block;
+    animation: entranceFade 0.8s ease-out forwards;
+}
+
+/* 3. 修正後的動畫：將置中的 translate 寫進動畫裡，防止跑位 */
+@keyframes entranceFade {
+    from { 
+        opacity: 0; 
+        transform: translate(-50%, 20%); /* 從中心偏下一點開始 */
+    }
+    to { 
+        opacity: 1; 
+        transform: translate(-50%, 0%); /* 回到正中心 */
+    }
+}
 
         
         .quiz-img-box { 
@@ -205,8 +226,8 @@
     .spirit-node {
     position: absolute;
     /* 縮小尺寸，讓光點更精緻 */
-    width: 60px; 
-    height: 60px;
+    width: 40px; 
+    height: 40px;
     border-radius: 50%;
     cursor: pointer;
     z-index: 50;
@@ -253,8 +274,8 @@
 .spirit-node {
     position: absolute;
     /* 移除原本的 animation 設定，改由 JS 動態分配 */
-    width: 50px; 
-    height: 50px;
+    width: 40px; 
+    height: 40px;
     border-radius: 50%;
     cursor: pointer;
     z-index: 50;
@@ -488,11 +509,12 @@ function initSpiritNodes() {
     const playground = document.getElementById('stars-playground');
     // 稍微調亮顏色，避免在背景中隱形
     const colors = [
-        'rgba(162, 155, 254, 0.8)', 
-        'rgba(115, 198, 239, 0.8)', 
-        'rgba(255, 121, 198, 0.4)', 
-        'rgba(189, 147, 249, 0.5)', 
-        'rgba(249, 238, 203, 0.8)'
+        'rgba(162, 155, 254, 1)', 
+        'rgba(115, 198, 239, 1)', 
+        'rgba(158, 245, 227, 1)', 
+        'rgba(247, 137, 255,1)', 
+        'rgba(252,177,91,1)', 
+        'rgba(249, 238, 203, 1)'
     ];
 
     for (let i = 0; i < 12; i++) {
@@ -567,6 +589,8 @@ function openQuiz(clickedNode) {
 
     // 顯示燈箱
     document.getElementById('main-container').style.display = 'block';
+    const mainBox = document.getElementById('main-container');
+    mainBox.classList.add('show'); // 加入 show 觸發淡入動畫
 }
 
 function handleOptionClick(scoreConfig, node, qIndex) {
@@ -577,6 +601,10 @@ function handleOptionClick(scoreConfig, node, qIndex) {
 
     // 隱藏燈箱
     document.getElementById('main-container').style.display = 'none';
+    const mainBox = document.getElementById('main-container');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    mainBox.classList.remove('show'); // 移除 Class，重置狀態
+    mainBox.style.display = 'none';   // 徹底隱藏
 
     // 圓圈消失動畫
     node.style.transform = 'scale(0)';
@@ -594,6 +622,7 @@ function handleOptionClick(scoreConfig, node, qIndex) {
 
 function showAnalyzing() {
     const main = document.getElementById('main-container');
+    main.classList.add('show');
     main.style.display = 'block';
     const quizView = document.getElementById('quiz-view');
     
