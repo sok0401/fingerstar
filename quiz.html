@@ -538,6 +538,12 @@ function initSpiritNodes() {
         const node = document.createElement('div');
         node.className = 'spirit-node';
         node.style.pointerEvents = 'auto'; // 讓光點可以被點擊
+
+        // --- 新增：隨機大小邏輯 ---
+        // 這會產生 30px 到 70px 之間的隨機大小
+        const baseSize = Math.random() * 45 + 25; 
+        node.style.width = baseSize + 'px';
+        node.style.height = baseSize + 'px';
         
         // 隨機半徑：讓光點分布在距離中心 150px 到 400px 的範圍內
         const radius = 150 + Math.random() * 350;
